@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>My First Web Map</title>
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+  <link href="https://fonts.googleapis.com/css?family=Noto+Sans" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Lora" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: whitesmoke;
+      font-family: "Noto Sans", sans-serif;
+      color: #3d3d3d;
+    }
+
+    h1 {
+      position: absolute;
+      margin-top: 0;
+      top: 10px;
+      left: 45px;
+      font-size: 2em;
+      font-family: "Lora", serif;
+      letter-spacing: .04em;
+      padding: 10px 15px;
+      background: rgba(256, 256, 256, 0.8);
+      border: 1px solid grey;
+      border-radius: 3px;
+      z-index: 800;
+    }
+
+    h2 {
+      font-family: "Lora", serif;
+      letter-spacing: .04em;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
+
+    section {
+      position: absolute;
+      bottom: 0;
+      left: 10px;
+      width: 280px;
+      margin: 20px auto;
+      padding: 0 15px;
+      background: rgba(256, 256, 256, 0.9);
+      border: 1px solid grey;
+      border-radius: 3px;
+      z-index: 800;
+    }
+
+    p {
+      font-size: .9em;
+      line-height: 1.5em;
+    }
+
+    a {
+      color: #005daa;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Tanawha Trail Map</h1>
+
+  <div id="map"></div>
+
+  <section>
+    <h2>About this map</h2>
+    <p>This interactive web map shows a hiking route along the Tanawha Trail from Beacon Heights to Price Park, North Carolina. Hover over the markers to see key points of interest along the route.</p>
+
+    <p>Base map tiles are provided by <a href="https://www.esri.com">Esri</a>. Map authored by <strong>Zachary Watkins</strong>.</p>
+  </section>
+
+  <!-- Load libraries -->
+  <script src="http://code.jquery.com/jquery-3.1.1.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+
+  <!-- Load route data -->
+  <script src="data/route.js"></script>
+
+  <!-- Custom map script -->
+  <script>
+    // Map options
+    var options = {
+      center: [36.08403, -81.83015],
+      zoom: 16
+    };
+
+    // Create the map
+    var map = L.map('map', options);
+
+    // Add basemap layer
+    var Esri_WorldTopoMap = L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+      {
+        attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, USGS, FAO, NPS, NRCAN, GeoBase, and the GIS User Community'
+      }
+    ).addTo(map);
+
+    // Add and style the route line (LineString)
+    var myRoute = L.geoJson(data, {
+      filter: function (feature) {
+        return feature.geometry.type === "LineString";
+      },
+      style: function (feature) {
+        return {
+          color: "#005DAA",
+          weight: 3,
+          opacity: 0.7,
+          dashArray: "5, 5"
+        };
+      }
+    }).addTo(map);
+
+    // Add placemarkers (Points) with tooltips
+    var myStops = L.geoJson(data, {
+      filter: function (feature) {
+        return feature.geometry.type === "Point";
+      },
+      onEachFeature: function (feature, layer) {
+        layer.bindTooltip(feature.properties.name);
+      }
+    }).addTo(map);
+
+    // Fit map view to the route bounds
+    map.fitBounds(myRoute.getBounds());
+
+	//adding user interaction
+	layer.bindTooltip(feature.properties['name']); 
+  </script>
+
+</body>
+</html>
